@@ -1,91 +1,102 @@
-import { useState } from 'react'
-import './App.css'
+import { useState } from 'react';
+import './App.css';
 
 function App() {
-  const [result, setResult] = useState("")
-  const [currentInput, setCurrentInput] = useState("") 
-  const [operationDone, setOperationDone] = useState(false) 
-  const [error, setError] = useState(false) 
+  const [result, setResult] = useState("");
+  const [currentInput, setCurrentInput] = useState("");
+  const [operationDone, setOperationDone] = useState(false);
+  const [error, setError] = useState(false);
+  const [storedValue, setStoredValue] = useState("");
+  const [operator, setOperator] = useState("");
 
   const handleClick = e => {
-    const input = e.target.id
+    const input = e.target.id;
 
     if (error || operationDone) {
-      setResult("")
-      setCurrentInput("")
-      setOperationDone(false)
-      setError(false)
+      setResult("");
+      setCurrentInput("");
+      setOperationDone(false);
+      setError(false);
     }
 
-    if (input === '.' && currentInput.includes('.')) return
+    if (input === '.' && currentInput.includes('.')) return;
 
-    if (currentInput.length < 9 || isNaN(input)) { 
-      setResult(prev => prev + input)
-      if (!isNaN(input) || input === '.') {
-        setCurrentInput(prev => prev + input) 
-      } else {
-        setCurrentInput("") 
+    if (!isNaN(input) || input === '.') {
+      if (currentInput.length < 9) {
+        setCurrentInput(prev => prev + input);
+        setResult(prev => prev + input);
+      }
+    } else {
+      if (input === '+' || input === '-' || input === '*' || input === '/') {
+        setStoredValue(currentInput); 
+        setCurrentInput(""); 
+        setOperator(input); 
+        setResult(""); 
       }
     }
-  }
+  };
 
   const clear = () => {
-    setResult("")
-    setCurrentInput("")
-    setOperationDone(false)
-    setError(false)
-  }
+    setResult("");
+    setCurrentInput("");
+    setStoredValue("");
+    setOperator("");
+    setOperationDone(false);
+    setError(false);
+  };
 
   const deleteElement = () => {
-    const updatedResult = result.slice(0, -1)
-    setResult(updatedResult)
-    if (!isNaN(result.slice(-1)) || result.slice(-1) === '.') 
-      { 
-      setCurrentInput(currentInput.slice(0, -1))
+    const updatedResult = result.slice(0, -1);
+    setResult(updatedResult);
+    if (!isNaN(result.slice(-1)) || result.slice(-1) === '.') {
+      setCurrentInput(currentInput.slice(0, -1));
     }
-  }
+  };
 
   const calculate = () => {
     try {
-      const evaluation = eval(result)
+      const evaluation = eval(`${storedValue}${operator}${currentInput}`);
       if (evaluation < 0 || evaluation > 999999999) {
-        setResult("ERROR")
-        setError(true)
+        setResult("ERROR");
+        setError(true);
       } else {
-        const evaluationStr = evaluation.toString()
+        const evaluationStr = evaluation.toString();
         if (evaluationStr.length > 9) {
-          setResult(evaluationStr.slice(0, 9)) 
+          setResult(evaluationStr.slice(0, 9));
         } else {
-          setResult(evaluationStr)
+          setResult(evaluationStr);
         }
-        setCurrentInput(evaluationStr) 
+        setCurrentInput(evaluationStr);
       }
-      setOperationDone(true) 
+      setOperationDone(true);
     } catch (error) {
-      setResult("ERROR")
-      setError(true)
+      setResult("ERROR");
+      setError(true);
     }
-  }
+  };
+
   const handleFirstClickAfterError = e => {
-    const input = e.target.id
-    setResult(input)
-    setCurrentInput(isNaN(input) ? "" : input) 
-    setOperationDone(false)
-    setError(false)
-  }
-  const toggleSign = () => {
-    if (result === "") return 
+    const input = e.target.id;
+    setResult(input);
+    setCurrentInput(isNaN(input) ? "" : input);
+    setOperationDone(false);
+    setError(false);
+  };
 
-    let updatedResult = result
+  const toggleSign = () => {
+    if (result === "") return;
+
+    let updatedResult = result;
     if (result[0] === '-') {
-      updatedResult = result.slice(1)
+      updatedResult = result.slice(1);
     } else if (result.length < 9) {
-      updatedResult = '-' + result
+      updatedResult = '-' + result;
     }
 
-    setResult(updatedResult)
-    setCurrentInput(updatedResult)
-  }
+    setResult(updatedResult);
+    setCurrentInput(updatedResult);
+  };
+
   return (
     <div className="calculator">
       <input type="text" value={result} disabled />
@@ -117,7 +128,7 @@ function App() {
         <button id='=' className="operator col-span-2" onClick={calculate}>=</button>
       </div>
     </div>
-  )
+  );
 }
 
-export default App
+export default App;
